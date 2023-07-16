@@ -1,25 +1,51 @@
-const express = require('express')
+import express from "express";
+// import Joi from "joi";
 
-const router = express.Router()
+import contactsService from "../../models/contacts.js";
 
-router.get('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
+import { HttpError } from "../../helpers/index.js";
+
+const contactsRouter = express.Router();
+
+// const contactAddSchema = Joi.object({
+//   title: Joi.string().required().messages({
+//     "any.required": `"title" must be exist`,
+//   }),
+//   director: Joi.string().required(),
+// })
+
+contactsRouter.get("/", async (req, res, next) => {
+  try {
+    const result = await contactsService.listContacts();
+    res.json(result);
+  }
+  catch (error) {
+    next(error);
+  }
 })
 
-router.get('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
+contactsRouter.get("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await contactsService.getContactById(id);
+    if (!result) throw HttpError(404);
+    res.json(result);
+  }
+  catch (error) {
+    next(error);
+  }
 })
 
-router.post('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+// router.post('/', async (req, res, next) => {
+//   res.json({ message: 'template message' })
+// })
 
-router.delete('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+// router.delete('/:contactId', async (req, res, next) => {
+//   res.json({ message: 'template message' })
+// })
 
-router.put('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+// router.put('/:contactId', async (req, res, next) => {
+//   res.json({ message: 'template message' })
+// })
 
-module.exports = router
+export default contactsRouter;
