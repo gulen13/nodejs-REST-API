@@ -3,3 +3,4 @@ export { default as contactUpdateFavoriteSchema } from "../schemas/contactsSchem
 
 export { default as userSignupSchema } from "../schemas/userSchema.js";
 export { default as userSigninSchema } from "../schemas/userSchema.js";
+export { default as updateSubscription } from "../schemas/userSchema.js";

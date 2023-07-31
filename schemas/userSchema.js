@@ -23,7 +23,19 @@ export const userSigninSchema = Joi.object({
   }),
 })
 
+export const updateSubscription = Joi.object({
+  subscription: Joi.string()
+    .valid('starter', 'pro', 'business')
+    .required()
+    .messages({
+      'any.required': 'missing subscription field',
+      'any.only':
+        'Invalid subscription type. It should be one of - starter, pro, or business',
+    }),
+});
+
 export default {
   userSignupSchema,
-  userSigninSchema
+  userSigninSchema,
+  updateSubscription
 }
