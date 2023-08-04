@@ -2,9 +2,14 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import "dotenv/config"
 import User from "../models/userModel.js"
-import { HttpError, ctrlWrapper } from "../helpers/index.js";
+import { HttpError, ctrlWrapper, resizeAvatarImg } from "../helpers/index.js";
+import gravatar from "gravatar";
+import path from "path";
+import fs from "fs/promises"
 
 const { JWT_SECRET } = process.env;
+
+const avatarPath = path.resolve("public", "avatars");
 
 const signup = async (req, res) => {
   const { email, password, subscription } = req.body;
@@ -16,7 +21,11 @@ const signup = async (req, res) => {
     throw HttpError(409, "Email in use");
   }
 
-  const newUser = await User.create({ ...req.body, password: hashPassword })
+  const avatarURL = gravatar.url(email);
+
+  const newUser = await User.create({ ...req.body, password: hashPassword, avatarURL })
+
+
   res.status(201).json({
     user: {
       email: newUser.email,
@@ -81,10 +90,24 @@ const updateSubscription = async (req, res) => {
   });
 };
 
+const updateAvatar = async (req, res) => {
+  const { _id } = req.user;
+  const { path: tempUpload, originalname } = req.file;
+  await resizeAvatarImg(tempUpload);
+  const filename = `${_id}_${originalname}`;
+  const resultUpload = path.join(avatarPath, filename);
+  await fs.rename(tempUpload, resultUpload);
+  const avatarURL = path.join("avatars", filename);
+  await User.findByIdAndUpdate(_id, { avatarURL });
+
+  res.json({ avatarURL });
+}
+
 export default {
   signup: ctrlWrapper(signup),
   signin: ctrlWrapper(signin),
   getcurrent: ctrlWrapper(getcurrent),
   signout: ctrlWrapper(signout),
-  updateSubscription: ctrlWrapper(updateSubscription)
+  updateSubscription: ctrlWrapper(updateSubscription),
+  updateAvatar: ctrlWrapper(updateAvatar)
 }
