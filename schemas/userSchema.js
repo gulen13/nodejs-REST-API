@@ -34,8 +34,15 @@ export const updateSubscription = Joi.object({
     }),
 });
 
+export const userEmailSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    "any.required": "missing required email field",
+  }),
+});
+
 export default {
   userSignupSchema,
   userSigninSchema,
-  updateSubscription
+  updateSubscription,
+  userEmailSchema
 }
